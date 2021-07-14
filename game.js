@@ -30,26 +30,45 @@ loadSprite('stairs', 'VghkL08.png')
 loadSprite('bg', 'u4DVsx6.png')
 
 scene('game', ({level, score}) => {
+
+  layers(['ui', 'bg', 'obj'], 'obj')
+
   const map = [
-    'cccccccccc',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
-    'c         ',
+    '{c^cccctcc}',
+    'l         r',
+    'l     -   r',
+    'l         r',
+    'l         r',
+    'l       f r',
+    'd         r',
+    'l  -      r',
+    'l         r',
+    '(bbbbbb^bb)',
   ]
 
   const levelCfg = {
     width: 48,
     height: 48,
-    'c': [sprite('top-wall')]
+    'c': [sprite('top-wall')],
+    'l': [sprite('left-wall')],
+    'r':[sprite('right-wall')],
+    'b': [sprite('bottom-wall')],
+    ')': [sprite('bottom-right-wall')],
+    '(': [sprite('bottom-left-wall')],
+    '{': [sprite('top-left-wall')],
+    '}': [sprite('top-right-wall')],
+    'd': [sprite('left-door')],
+    's': [sprite('stairs')],
+    't': [sprite('top-door')],
+    'f': [sprite('fire-pot')],
+    '^': [sprite('lanterns')],
+    '-': [sprite('slicer')],
+    '*': [sprite('skeletor')],
   }
 
   addLevel(map, levelCfg)
+
+  add([sprite('bg'), layer('bg')])
 
 })
 
