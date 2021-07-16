@@ -6,9 +6,12 @@ kaboom({
   clearColor:[0,0,0,1]
 })
 
+const MOVE_SPEED = 120
+const SLICER_SPEED = 120
+
 loadRoot('https://i.imgur.com/')
 loadSprite('link-left', '1Xq9biB.png')
-loadSprite('link-right', 'yZIb802.png')
+loadSprite('link-right', 'yZIb8O2.png')
 loadSprite('link-down', 'r377FIM.png')
 loadSprite('link-up', 'UkV0we0.png')
 loadSprite('left-wall', 'rfDoaa1.png')
@@ -38,10 +41,10 @@ scene('game', ({level, score}) => {
     'l         r',
     'l     -   r',
     'l         r',
-    'l         r',
-    'l       f r',
     'd         r',
-    'l  -      r',
+    'l       f r',
+    'l         r',
+    'l      -  r',
     'l         r',
     '(bbbbbb^bb)',
   ]
@@ -49,27 +52,79 @@ scene('game', ({level, score}) => {
   const levelCfg = {
     width: 48,
     height: 48,
-    'c': [sprite('top-wall')],
-    'l': [sprite('left-wall')],
-    'r':[sprite('right-wall')],
-    'b': [sprite('bottom-wall')],
-    ')': [sprite('bottom-right-wall')],
-    '(': [sprite('bottom-left-wall')],
-    '{': [sprite('top-left-wall')],
-    '}': [sprite('top-right-wall')],
+    'c': [sprite('top-wall'), solid(), 'wall'],
+    'l': [sprite('left-wall'), solid(), 'wall'],
+    'r': [sprite('right-wall'), solid(), 'wall'],
+    'b': [sprite('bottom-wall'), solid(), 'wall'],
+    ')': [sprite('bottom-right-wall'), solid(), 'wall'],
+    '(': [sprite('bottom-left-wall'), solid(), 'wall'],
+    '{': [sprite('top-left-wall'), solid(), 'wall'],
+    '}': [sprite('top-right-wall'), solid(), 'wall'],
     'd': [sprite('left-door')],
     's': [sprite('stairs')],
     't': [sprite('top-door')],
-    'f': [sprite('fire-pot')],
-    '^': [sprite('lanterns')],
-    '-': [sprite('slicer')],
-    '*': [sprite('skeletor')],
+    'f': [sprite('fire-pot'), solid()],
+    '^': [sprite('lanterns'), solid(), 'wall'],
+    '-': [sprite('slicer'), 'dangerous', 'slicer', {dir: -1}],
+    '*': [sprite('skeletor'), 'dangerous'],
   }
 
   addLevel(map, levelCfg)
 
   add([sprite('bg'), layer('bg')])
 
+  const scoreLabel = add([
+    text('0'),
+    pos(400,500),
+    layer('ui'),
+    {
+      value: score,    
+    },
+    scale(3)
+  ])
+
+  const player = add([sprite('link-right'), pos(5,285)])
+
+  player.action(() => {
+    player.resolve()
+  })
+
+  keyDown('left', () => {
+    player.changeSprite('link-left')
+    player.move(-MOVE_SPEED, 0)
+  })
+
+  keyDown('right', () => {
+    player.changeSprite('link-right')
+    player.move(MOVE_SPEED, 0)
+  })
+
+  keyDown('up', () => {
+    player.changeSprite('link-up')
+    player.move(0, -MOVE_SPEED)
+  })
+
+   keyDown('down', () => {
+    player.changeSprite('link-down')
+    player.move(0, MOVE_SPEED)
+  })
+
+  action('slicer', (s) => {
+    s.move(s.dir * SLICER_SPEED, 0)
+  })
+
+  collides('slicer', 'wall', (s) => {
+    s.dir = -s.dir
+  })
+
+  player.overlaps('dangerous', () => {
+    go('lose', {score: scoreLabel.value})
+  })
+
+})
+
+scene('lose', ({ score }) => {
+  add([text(score, 32), origin('center'), pos(width()/ 2, height()/2)])
 })
 
 start('game', {level: 0, score: 0})
