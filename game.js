@@ -99,7 +99,13 @@ scene('game', ({level, score}) => {
     scale(3)
   ])
 
-  const player = add([sprite('link-right'), pos(5,200)])
+  const player = add([
+    sprite('link-right'), 
+    pos(5,200),
+    {
+      dir: vec2(1,0)
+    }
+    ])
 
   player.action(() => {
     player.resolve()
@@ -115,21 +121,36 @@ scene('game', ({level, score}) => {
   keyDown('left', () => {
     player.changeSprite('link-left')
     player.move(-MOVE_SPEED, 0)
+    player.dir = vec2(-1,0)
   })
 
   keyDown('right', () => {
     player.changeSprite('link-right')
     player.move(MOVE_SPEED, 0)
+    player.dir = vec2(1,0)
   })
 
   keyDown('up', () => {
     player.changeSprite('link-up')
     player.move(0, -MOVE_SPEED)
+    player.dir = vec2(0, -1)
   })
 
    keyDown('down', () => {
     player.changeSprite('link-down')
     player.move(0, MOVE_SPEED)
+    player.dir = vec2(0,1)
+  })
+
+  function spawnKaboom (p) {
+    const obj = add([sprite('kaboom'), pos(p), 'kaboom'])
+    wait(1, () => {
+      destroy(obj)
+    })
+  } 
+
+  keyPress('space', ()=> {
+    spawnKaboom(player.pos.add(player.dir.scale(48)))
   })
 
   action('slicer', (s) => {
@@ -147,6 +168,16 @@ scene('game', ({level, score}) => {
       s.dir = -s.dir
       s.timer = rand(5)
     }
+  })
+
+  collides('kaboom', 'skeletor', (k,s) => {
+    camShake(2)
+    wait(1, () => {
+      destroy(k)
+    })
+    destroy(s)
+    scoreLabel.value++
+    scoreLabel.text = scoreLabel.value
   })
 
   player.overlaps('dangerous', () => {
