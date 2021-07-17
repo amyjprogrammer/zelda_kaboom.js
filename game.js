@@ -8,6 +8,7 @@ kaboom({
 
 const MOVE_SPEED = 120
 const SLICER_SPEED = 120
+const SKELETOR_SPEED = 80
 
 loadRoot('https://i.imgur.com/')
 loadSprite('link-left', '1Xq9biB.png')
@@ -36,17 +37,32 @@ scene('game', ({level, score}) => {
 
   layers(['ui', 'bg', 'obj'], 'obj')
 
-  const map = [
-    '{c^cccctcc}',
-    'l         r',
-    'l     -   r',
-    'l         r',
-    'd         r',
-    'l       f r',
-    'l         r',
-    'l      -  r',
-    'l         r',
-    '(bbbbbb^bb)',
+  const maps = [
+    [
+      '{c^cccctcc}',
+      'l         r',
+      'l     -   r',
+      'l         r',
+      'd         r',
+      'l       f r',
+      'l         r',
+      'l      -  r',
+      'l         r',
+      '(bbbbbb^bb)',
+    ],
+    [
+      '{ccccccccc}',
+      'l         r',
+      '^         ^',
+      'l         r',
+      'l    s    r',
+      'l         r',
+      'l    *    r',
+      '^         ^',
+      'l         r',
+      '(bbbbbbbbb)',
+    ]
+   
   ]
 
   const levelCfg = {
@@ -61,15 +77,15 @@ scene('game', ({level, score}) => {
     '{': [sprite('top-left-wall'), solid(), 'wall'],
     '}': [sprite('top-right-wall'), solid(), 'wall'],
     'd': [sprite('left-door')],
-    's': [sprite('stairs')],
-    't': [sprite('top-door')],
+    's': [sprite('stairs'), 'next-level'],
+    't': [sprite('top-door'), 'next-level'],
     'f': [sprite('fire-pot'), solid()],
     '^': [sprite('lanterns'), solid(), 'wall'],
     '-': [sprite('slicer'), 'dangerous', 'slicer', {dir: -1}],
-    '*': [sprite('skeletor'), 'dangerous'],
+    '*': [sprite('skeletor'), 'skeletor', 'dangerous', {dir: -1, timer: 0},],
   }
 
-  addLevel(map, levelCfg)
+  addLevel(maps[level], levelCfg)
 
   add([sprite('bg'), layer('bg')])
 
@@ -83,10 +99,17 @@ scene('game', ({level, score}) => {
     scale(3)
   ])
 
-  const player = add([sprite('link-right'), pos(5,285)])
+  const player = add([sprite('link-right'), pos(5,200)])
 
   player.action(() => {
     player.resolve()
+  })
+
+  player.overlaps('next-level', ()=> {
+    go('game', {
+      level: (level + 1) % maps.length,
+      score: scoreLabel.value
+    })
   })
 
   keyDown('left', () => {
@@ -113,8 +136,17 @@ scene('game', ({level, score}) => {
     s.move(s.dir * SLICER_SPEED, 0)
   })
 
-  collides('slicer', 'wall', (s) => {
+  collides('dangerous', 'wall', (s) => {
     s.dir = -s.dir
+  })
+
+  action('skeletor', (s) => {
+    s.move(0, s.dir * SKELETOR_SPEED)
+    s.timer -= dt()
+    if (s.timer <=0) {
+      s.dir = -s.dir
+      s.timer = rand(5)
+    }
   })
 
   player.overlaps('dangerous', () => {
