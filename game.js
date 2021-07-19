@@ -61,8 +61,32 @@ scene('game', ({level, score}) => {
       '^         ^',
       'l         r',
       '(bbbbbbbbb)',
-    ]
-   
+    ],
+    [
+      '{c^ctccc^c}',
+      'l         r',
+      'l    -    r',
+      'l *       r',
+      'l         r',
+      'l    f    r',
+      'l     -   r',
+      'l  *      r',
+      'l         r',
+      '(b^bbbbb^b)',
+    ],
+    [
+      '{c^ctccc^c}',
+      'l         r',
+      'l     -   r',
+      'lbbbbb    r',
+      'l    r  * r',
+      'l    r    r',
+      'l    r    r',
+      'l  -      r',
+      'l         r',
+      '(b^bbbbb^b)',
+    ],
+
   ]
 
   const levelCfg = {
